@@ -1,0 +1,17 @@
+{
+  "name": "claude-orchestrator",
+  "version": "1.0.0",
+  "description": "Central orchestration plugin — reminders, workflows, skill learning, session state, multi-model dispatch, and agent teams",
+  "author": {
+    "name": "ccwriter369-beep"
+  },
+  "repository": "https://github.com/ccwriter369-beep/claude-orchestrator",
+  "license": "MIT",
+  "keywords": [
+    "orchestration",
+    "workflow",
+    "dispatch",
+    "reminders",
+    "mcp"
+  ]
+}

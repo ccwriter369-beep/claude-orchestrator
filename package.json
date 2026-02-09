@@ -1,0 +1,18 @@
+{
+  "name": "claude-orchestrator",
+  "version": "1.0.0",
+  "description": "Central MCP plugin for reminders, workflows, skill learning, session state, multi-model dispatch, and agent teams",
+  "main": "scripts/mcp-server.cjs",
+  "scripts": {
+    "build": "bun run build.ts",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  },
+  "license": "MIT"
+}
