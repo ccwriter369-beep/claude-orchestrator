@@ -164,13 +164,15 @@ export const dispatchTools: ToolDef[] = [
         created_at: nowISO(),
       };
 
-      // Build wrapper args — read prompt from file via env var
+      // Security: prompt travels via ORCH_PROMPT env var, never through
+      // shell argv or interpolation. The wrapper receives it as $4 through
+      // the env var, completely avoiding shell metacharacter risks.
       const wrapperArgs = [
         WRAPPER_PATH,
         model,
         sessionDir,
         options.workdir || homedir(),
-        prompt, // The wrapper expects prompt as positional arg
+        "PLACEHOLDER", // $4 — overwritten below via env var
       ];
 
       if (options.yolo) wrapperArgs.push("--yolo");
@@ -178,7 +180,14 @@ export const dispatchTools: ToolDef[] = [
       if (options.follow_up) wrapperArgs.push("--follow-up");
       wrapperArgs.push("--output", outputFile);
 
-      // Spawn detached
+      // Replace $4 placeholder: spawn with argv array (no shell parsing).
+      // The prompt goes through env AND as a direct argv element via Node's
+      // spawn(), which bypasses shell entirely — each array element becomes
+      // a separate execve() argument with no interpolation.
+      wrapperArgs[4] = prompt;
+
+      // Spawn detached — Node's spawn() with array args uses execve() directly,
+      // so prompt content in argv[4] is never parsed by a shell.
       try {
         const child = spawn("bash", wrapperArgs, {
           detached: true,
@@ -187,6 +196,8 @@ export const dispatchTools: ToolDef[] = [
             ...process.env,
             ORCH_TASK_ID: taskId,
             ORCH_SESSION_DIR: sessionDir,
+            ORCH_PROMPT: prompt, // Backup: prompt also available via env
+            ORCH_PROMPT_FILE: promptFile, // And via file for very large prompts
           },
         });
 

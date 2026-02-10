@@ -5,6 +5,42 @@ import { nowISO, ok, err } from "../util";
 const FILE = "workflows.json";
 
 const BUILTIN_TEMPLATES: Record<string, string[]> = {
+  "orchestrator": [
+    // 1 — Intake
+    "INTAKE: Get task and understand scope. Read the request fully. Use get_context for prior state. Check get_workflow_status for anything in-flight. Ask clarifying questions NOW, not mid-build.",
+    // 2 — Goal mapping
+    "GOALS: Read task deeply, list and catalogue ALL goals. Break ambiguous goals into concrete deliverables. Store goals with set_context(key='goals'). Two passes: first for explicit goals, second for implied ones.",
+    // 3 — Parallel research
+    "RESEARCH: Dispatch Codex AND Gemini in parallel. Codex: codebase analysis + implementation plan + risks. Gemini: architecture review + best practices research + alternative approaches. Use dispatch() x2. Both get the goals list. Check get_dispatch_result() to monitor.",
+    // 4 — Agent team review
+    "AGENT REVIEW: Create agent team with /technical-planning skill for the 3rd set of eyes. create_team() with planner role. Agents see things dispatched models miss. Now you have 3 independent perspectives in flight.",
+    // 5 — Monitor parallel work
+    "MONITOR: Check all workers. get_dispatch_result() for Codex + Gemini. get_team_status() for agent team. Don't block — if one is slow, review what's already back. Note quality issues with note_learning().",
+    // 6 — Synthesize
+    "SYNTHESIZE: Collect all three outputs before writing the plan. Compare where they agree (high confidence), disagree (needs decision), and what each uniquely caught. Resolve conflicts. This is where orchestrator judgment matters most.",
+    // 7 — Plan with parallel scheduling
+    "PLAN: Use /technical-planning to write the implementation plan. KEY: Schedule work so Codex, Gemini, and agent teams stay busy. Priority order: Codex 1st, Agent Team 2nd, Gemini 3rd, Agent Team Two 4th. Tests can be written in parallel with implementation. define_workflow() with the steps.",
+    // 8 — Approval gate
+    "APPROVE: Present plan to user. Be explicit about what each worker will do and in what order. Show the parallel schedule. Plan starts only after user approves. start_workflow() once approved.",
+    // 9 — Execute and assign
+    "EXECUTE: Orchestrator assigns tasks, collects results, marks completion. dispatch() to models, create_team() for agents. advance_step() as phases complete. Watch for blockers — if one task blocks others, escalate or reassign. Keep workers busy.",
+    // 10 — Code review
+    "CODE REVIEW: All three review the completed work. dispatch(codex) for security + correctness. dispatch(gemini) for architecture + docs. Agent team for integration testing. Parallel — don't wait for one to start the next.",
+    // 11 — Review triage
+    "TRIAGE REVIEWS: Collect all code reviews. Categorize: must-fix (bugs, security), should-fix (patterns, consistency), nice-to-have (style). Don't fix everything at once — prioritize must-fix first.",
+    // 12 — Corrections plan
+    "CORRECTIONS: Make plan for fixes. Assign must-fix items to Codex (strongest at precise fixes). Send pattern issues to agents. Only dispatch to Gemini if there are architecture-level changes.",
+    // 13 — Test
+    "TEST: Run full test suite. If tests were written in parallel (step 7), run them now. If not, write them. Tests reveal what reviews missed. note_learning() for any gotchas found.",
+    // 14 — Fix failures
+    "FIX: Make corrections from test failures. Re-run tests after each fix. Don't batch fixes — fix one, verify, next. This prevents cascading breakage.",
+    // 15 — Commit
+    "COMMIT: Use /git-commit-helper skill. Conventional commit format. Message should reference the goals from step 2. Stage specific files, not git add -A.",
+    // 16 — Push
+    "PUSH: Simple push = just push. Anything more complex (PR, protected branch, multi-repo) = use /github-best-practices skill. Verify push succeeded.",
+    // 17 — Clean up and learn
+    "CLEAN UP: Three parts. (1) Feedback: dispatch(codex) and dispatch(gemini) asking 'what did you learn from this task that could improve future work?' Collect and review their suggestions. (2) Self-reflect: note_learning() for patterns that came up repeatedly, things that slowed you down, tools that worked well or poorly. fold_learnings() if enough accumulated. (3) Tidy: dissolve_team(), update MEMORY.md if the project is significant, clear temp context with clear_context().",
+  ],
   "new-skill": [
     "Gather examples and requirements",
     "Plan skill structure and SKILL.md",
@@ -70,7 +106,7 @@ export const workflowTools: ToolDef[] = [
   },
   {
     name: "start_workflow",
-    description: "Begin a workflow from a template or custom steps. Templates: new-skill, multi-model-critique, publish-to-github",
+    description: "Begin a workflow from a template or custom steps. Templates: orchestrator (full 17-step pipeline), new-skill, multi-model-critique, publish-to-github",
     inputSchema: {
       type: "object",
       properties: {
