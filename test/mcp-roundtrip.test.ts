@@ -305,6 +305,6 @@ describe("Team tools", () => {
 describe("Tool listing", () => {
   test("lists all 21 tools", async () => {
     const r = await sendMessage("tools/list", {});
-    expect(r.result.tools.length).toBe(21);
+    expect(r.result.tools.length).toBe(22);
   });
 });
